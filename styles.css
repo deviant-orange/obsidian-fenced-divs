@@ -1,0 +1,94 @@
+.obsidian-fenced-div {
+  background-color: rgba(8, 109, 221, 0.1);
+  padding: 1em;
+  border-radius: 0.5em;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+
+  &:not(:has(&:hover)):hover {
+    background-color: rgba(8, 109, 221, 0.25);
+  }
+
+  > .obsidian-fenced-div-chunk > * {
+    margin: 0;
+  }
+
+  > .obsidian-fenced-div {
+    margin: 1em 0;
+  }
+
+  .obsidian-fenced-div-banner {
+    color: rgb(8, 109, 221);
+    font-weight: bold;
+    font-size: var(--font-ui-small);
+    line-height: 1.5;
+    text-align: right;
+    user-select: none;
+  }
+}
+
+.obsidian-fenced-divs-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+
+  + .obsidian-fenced-divs-setting {
+    border-top: 1px solid var(--background-modifier-border);
+    margin-top: 1.5em;
+  }
+
+  h2 {
+    margin-bottom: 0em;
+  }
+
+  > label {
+    font-size: var(--font-ui-smaller);
+    display: block;
+  }
+
+  textarea {
+    width: 100%;
+    font-family: var(--font-monospace);
+  }
+
+  button {
+    overflow: hidden;
+  }
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  > div > button {
+    flex: 1 0 auto;
+  }
+
+  button.obsidian-fenced-divs-add-special-setting {
+    width: 100%;
+  }
+
+  .obsidian-fenced-divs-special-setting {
+    + .obsidian-fenced-divs-special-setting {
+      border-top: 1px solid var(--background-modifier-border);
+      margin-top: 1.5em;
+      padding-top: 1.5em;
+    }
+
+    > select,
+    > input,
+    > button {
+      flex: 1 1 auto;
+    }
+
+    > input {
+      font-family: var(--font-monospace);
+      min-width: 0;
+    }
+
+    > textarea {
+      flex: 1 1 auto;
+    }
+  }
+}
