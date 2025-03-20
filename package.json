@@ -1,6 +1,6 @@
 {
-  "name": "obsidian-fenced-divs",
-  "version": "0.1.0",
+  "name": "fenced-divs",
+  "version": "0.1.1",
   "description": "Supports Pandoc's fenced div syntax",
   "type": "module",
   "main": "main.js",

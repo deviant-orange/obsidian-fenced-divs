@@ -1,8 +1,8 @@
 {
-  "id": "obsidian-fenced-divs",
+  "id": "fenced-divs",
   "name": "Fenced Divs",
-  "description": "Support Pandoc's fenced div syntax for Obsidian.",
-  "version": "0.1.0",
+  "description": "Support Pandoc's fenced div syntax.",
+  "version": "0.1.1",
   "minAppVersion": "0.15.0",
   "author": "Jason Yu",
   "authorUrl": "https://github.com/deviant-orange",

@@ -1,6 +1,6 @@
 # Fenced Divs for Obsidian
 
-This Obsidian plugin adds support for the special fenced div syntax for Pandoc Markdown:
+This Obsidian plugin adds support for the [special fenced div syntax for Pandoc Markdown](https://pandoc.org/chunkedhtml-demo/8.18-divs-and-spans.html#extension-fenced_divs):
 
 ```
 ::: showcase
