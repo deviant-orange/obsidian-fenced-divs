@@ -37,6 +37,20 @@
     margin-top: 1.5em;
   }
 
+  > * {
+    flex: 1 1 auto;
+  }
+
+  div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  div > * {
+    flex: 1 1 auto;
+  }
+
   h2 {
     margin-bottom: 0em;
   }
@@ -51,22 +65,8 @@
     font-family: var(--font-monospace);
   }
 
-  > * {
-    flex: 1 1 auto;
-  }
-
   button {
     overflow: hidden;
-  }
-
-  div {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5em;
-  }
-
-  > div > button {
-    flex: 1 0 auto;
   }
 
   .obsidian-fenced-divs-special-setting {
@@ -74,10 +74,6 @@
       border-top: 1px solid var(--background-modifier-border);
       margin-top: 1.5em;
       padding-top: 1.5em;
-    }
-
-    > * {
-      flex: 1 1 auto;
     }
 
     > input {

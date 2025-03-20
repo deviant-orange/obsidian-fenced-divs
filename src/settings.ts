@@ -173,8 +173,11 @@ function specialStyling(
     text: "Applied to fenced divs with specified identifier.",
   });
 
+  const innerDiv = specialCSSSettings.createEl("div", {
+    cls: "obsidian-fenced-divs-special-settings",
+  });
   for (const [id, rule] of plugin.settings.specialStyling) {
-    specialStylingRow(specialCSSSettings, plugin, id, rule);
+    specialStylingRow(innerDiv, plugin, id, rule);
   }
 
   specialCSSSettings
@@ -183,7 +186,7 @@ function specialStyling(
       cls: "obsidian-fenced-divs-add-special-setting",
     })
     .addEventListener("click", (_) => {
-      specialStylingRow(specialCSSSettings, plugin);
+      specialStylingRow(innerDiv, plugin);
     });
 
   return specialCSSSettings;
