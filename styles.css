@@ -51,6 +51,10 @@
     font-family: var(--font-monospace);
   }
 
+  > * {
+    flex: 1 1 auto;
+  }
+
   button {
     overflow: hidden;
   }
@@ -65,10 +69,6 @@
     flex: 1 0 auto;
   }
 
-  button.obsidian-fenced-divs-add-special-setting {
-    width: 100%;
-  }
-
   .obsidian-fenced-divs-special-setting {
     + .obsidian-fenced-divs-special-setting {
       border-top: 1px solid var(--background-modifier-border);
@@ -76,19 +76,13 @@
       padding-top: 1.5em;
     }
 
-    > select,
-    > input,
-    > button {
+    > * {
       flex: 1 1 auto;
     }
 
     > input {
       font-family: var(--font-monospace);
       min-width: 0;
-    }
-
-    > textarea {
-      flex: 1 1 auto;
     }
   }
 }
