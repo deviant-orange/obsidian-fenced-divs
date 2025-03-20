@@ -3,18 +3,32 @@
 This Obsidian plugin adds support for the special fenced div syntax for Pandoc Markdown:
 
 ```
-::: {.id #className}
-This is rendered as _Markdown_.
+::: showcase
 
-- Some list items
-    - More list items
-    - You get the idea ...
+Hello world! Here are some **bold** and *italics* text.
+
+[[Linked Note|Linking]] to other notes should work, and so do images:
+
+![](./cat.jpg)
+
+::: nested
+Nested divs work too!
+:::
+
 :::
 ```
+
+![showcase screenshot](./screenshots/showcase.png)
 
 > [!NOTE]
 > This plugin currently does not support rendering fenced divs in Reading Mode,
 > since `MarkdownPostProcessor` does not preserve linebreaks.
+
+## Settings
+
+Because fenced divs are rendered as regular HTML `div`s, you should be able to style them with [Obsidian CSS snippets](https://help.obsidian.md/snippets). Alternatively, you can apply settings directly to `style` attributes through the plugin settings:
+
+![settings screenshot](./screenshots/settings.png)
 
 ## Development
 
