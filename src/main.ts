@@ -1,5 +1,8 @@
 import { Plugin } from "obsidian";
-import { makeFencedDivField } from "./fenced-div-extension";
+import {
+  fencedDivField,
+  makeFencedDivDecorationField,
+} from "./fenced-div-extension";
 import {
   FencedDivSettings,
   FencedDivSettingTab,
@@ -13,7 +16,10 @@ export default class FencedDivPlugin extends Plugin {
     await this.loadSettings();
     this.addSettingTab(new FencedDivSettingTab(this.app, this));
 
-    this.registerEditorExtension([makeFencedDivField(this.settings)]);
+    this.registerEditorExtension([
+      fencedDivField,
+      makeFencedDivDecorationField(this.settings),
+    ]);
   }
 
   async loadSettings() {

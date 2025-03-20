@@ -9,24 +9,84 @@ import { RangeSetBuilder, StateEffect, StateField } from "@codemirror/state";
 import { Decoration, EditorView, WidgetType } from "@codemirror/view";
 import { FencedDiv, parseFencedDiv } from "./fenced-div";
 import { rangeInSelection } from "./range";
+import { saveSettingsEffect } from "./settings";
 
-import type { Extension, Transaction } from "@codemirror/state";
+import type { EditorState, Extension, Transaction } from "@codemirror/state";
 import type { DecorationSet } from "@codemirror/view";
-import type { FencedDivInfo } from "./fenced-div";
 import type { FencedDivSettings } from "./settings";
 
-const clickFencedDivEffect = StateEffect.define<number>();
+export const fencedDivField = StateField.define<{
+  parsed: FencedDiv[];
+  filtered: FencedDiv[];
+}>({
+  create(state: EditorState): { parsed: FencedDiv[]; filtered: FencedDiv[] } {
+    const parsed = Array.from(parseFencedDiv(state.doc.iterLines())).map(
+      (info) => new FencedDiv(info),
+    );
+    const filtered = parsed.filter((_) => true);
+    return { parsed, filtered };
+  },
 
-export function makeFencedDivField(
+  update(
+    { parsed, filtered }: { parsed: FencedDiv[]; filtered: FencedDiv[] },
+    tr: Transaction,
+  ): { parsed: FencedDiv[]; filtered: FencedDiv[] } {
+    if (!tr.docChanged && !tr.selection) {
+      return { parsed, filtered };
+    }
+    if (!tr.docChanged) {
+      return {
+        parsed,
+        filtered: parsed.filter(
+          (div) => !rangeInSelection(div, tr.newSelection.ranges),
+        ),
+      };
+    }
+    const text = tr.state.doc;
+    const newParsed = Array.from(parseFencedDiv(text.iterLines())).map(
+      (info) => new FencedDiv(info),
+    );
+    const newFiltered = newParsed.filter(
+      (div) => !rangeInSelection(div, tr.newSelection.ranges),
+    );
+    return { parsed: newParsed, filtered: newFiltered };
+  },
+});
+
+export function makeFencedDivDecorationField(
   settings: FencedDivSettings,
 ): StateField<DecorationSet> {
   return StateField.define<DecorationSet>({
-    create(_): DecorationSet {
-      return Decoration.none;
+    create(state: EditorState): DecorationSet {
+      try {
+        return decorateFencedDivs(
+          state.field(fencedDivField).filtered,
+          settings,
+        );
+      } catch (RangeError) {
+        return Decoration.none;
+      }
     },
 
-    update(_oldState: DecorationSet, transaction: Transaction): DecorationSet {
-      return decorateFencedDivs(transaction, settings);
+    update(prevDecos: DecorationSet, tr: Transaction): DecorationSet {
+      if (!tr.state.field(editorLivePreviewField)) {
+        return Decoration.none;
+      }
+
+      const prevDivs = tr.startState.field(fencedDivField).filtered;
+      const divs = tr.state.field(fencedDivField).filtered;
+
+      const divsChanged =
+        prevDivs.length !== divs.length ||
+        divs.some((div, index) => !div.equals(prevDivs[index]));
+
+      if (
+        !divsChanged &&
+        tr.effects.every((effect) => !effect.is(saveSettingsEffect))
+      ) {
+        return prevDecos;
+      }
+      return decorateFencedDivs(divs, settings);
     },
 
     provide(field: StateField<DecorationSet>): Extension {
@@ -36,26 +96,18 @@ export function makeFencedDivField(
 }
 
 function decorateFencedDivs(
-  transaction: Transaction,
+  divs: FencedDiv[],
   settings: FencedDivSettings,
 ): DecorationSet {
-  if (!transaction.state.field(editorLivePreviewField)) {
-    return Decoration.none;
-  }
   const builder = new RangeSetBuilder<Decoration>();
-  const text = transaction.state.doc;
 
-  Array.from(parseFencedDiv(text.iterLines()))
-    .filter((info) => !fencedDivInEffects(info, transaction.effects))
-    .filter((info) => !rangeInSelection(info, transaction.newSelection.ranges))
-    .map((info) => new FencedDiv(info))
-    .forEach((div) => {
-      const decoration = Decoration.replace({
-        widget: new FencedDivWidget(div, settings),
-        block: true,
-      });
-      builder.add(div.from, div.to, decoration);
+  for (const div of divs) {
+    const decoration = Decoration.replace({
+      widget: new FencedDivWidget(div, settings),
+      block: true,
     });
+    builder.add(div.from, div.to, decoration);
+  }
 
   return builder.finish();
 }
@@ -111,7 +163,6 @@ export function render(
   container.addEventListener("click", (e) => {
     e.stopPropagation();
     view.dispatch({
-      effects: [clickFencedDivEffect.of(div.from)],
       selection: {
         anchor: div.textStartPos,
         head: div.textStartPos,
@@ -130,28 +181,6 @@ function applyStyle(el: HTMLElement, settings: FencedDivSettings) {
     }
   }
   el.setAttribute("style", styles.join("\n"));
-}
-
-function fencedDivInEffects(
-  info: FencedDivInfo,
-  effects: readonly StateEffect<any>[],
-): boolean {
-  for (let effect of effects) {
-    if (effect.is(clickFencedDivEffect)) {
-      if (effect.value === info.from) {
-        return true;
-      }
-      for (let child of info.content) {
-        if (typeof child !== "string") {
-          child = child as FencedDivInfo;
-          if (fencedDivInEffects(child, effects)) {
-            return true;
-          }
-        }
-      }
-    }
-  }
-  return false;
 }
 
 function makeRenderProc(app: App): (s: string) => HTMLElement {

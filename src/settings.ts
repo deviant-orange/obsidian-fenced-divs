@@ -1,6 +1,11 @@
-import { App, Notice, PluginSettingTab } from "obsidian";
-import type FencedDivPlugin from "./main";
+import { App, MarkdownView, Notice, PluginSettingTab } from "obsidian";
+import { StateEffect } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
 import { nanoid } from "nanoid";
+
+import type FencedDivPlugin from "./main";
+
+export const saveSettingsEffect = StateEffect.define();
 
 export type FencedDivSerializableSettings = {
   globalStyling: string;
@@ -147,12 +152,14 @@ function globalStyling(
   clearBtn.addEventListener("click", async (_) => {
     plugin.settings.globalStyling = "";
     globalSettingEl.value = "";
+    dispatch(plugin.app, saveSettingsEffect.of(null));
     await plugin.saveSettings();
     saveBtn.disabled = true;
     new Notice("Fenced Divs: Global styling cleared");
   });
   saveBtn.addEventListener("click", async (_) => {
     plugin.settings.globalStyling = globalSettingEl.value;
+    dispatch(plugin.app, saveSettingsEffect.of(null));
     await plugin.saveSettings();
     saveBtn.disabled = true;
     new Notice("Fenced Divs: Global styling setting saved");
@@ -248,6 +255,7 @@ function specialStylingRow(
 
   deleteBtn.addEventListener("click", async (_) => {
     if (plugin.settings.specialStyling.delete(id)) {
+      dispatch(plugin.app, saveSettingsEffect.of(null));
       await plugin.saveSettings();
       new Notice(`Fenced Divs: Styling deleted for "${rule.toString()}"`);
     }
@@ -256,6 +264,7 @@ function specialStylingRow(
   saveBtn.addEventListener("click", async (_) => {
     const newRule = StylingRule.fromElements(selectEl, identifierEl, styleEl);
     plugin.settings.specialStyling.set(id, newRule);
+    dispatch(plugin.app, saveSettingsEffect.of(null));
     await plugin.saveSettings();
     saveBtn.disabled = true;
     new Notice(`Fenced Divs: Styling saved for "${newRule.toString()}"`);
@@ -273,6 +282,15 @@ function isUnmodifiedRule(
   return (
     rule.isEmpty() || (existingRule !== undefined && existingRule.equals(rule))
   );
+}
+
+function dispatch(app: App, effect: StateEffect<null>) {
+  app.workspace.iterateAllLeaves((leaf) => {
+    if (leaf.view && leaf.view instanceof MarkdownView) {
+      const view = (leaf.view.editor as any).cm as EditorView;
+      view.dispatch({ effects: effect });
+    }
+  });
 }
 
 const EXAMPLE_CSS = "# for instance:\ncolor: white;\nbackground-color: black;";

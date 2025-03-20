@@ -105,6 +105,43 @@ export class FencedDiv {
       this.classList = [];
     }
   }
+
+  equals(other: string | FencedDiv | undefined): boolean {
+    if (!(other instanceof FencedDiv)) {
+      return false;
+    }
+    if (
+      this.id !== other.id ||
+      this.from !== other.from ||
+      this.to !== other.to ||
+      this.textStartPos !== other.textStartPos ||
+      this.name !== other.name
+    ) {
+      return false;
+    }
+    if (
+      this.classList.length !== other.classList.length ||
+      this.classList.some((name, index) => name !== other.classList[index])
+    ) {
+      return false;
+    }
+    if (
+      this.content.length !== other.content.length ||
+      this.content.some((child, index) => {
+        const otherChild = other.content[index];
+        if (child instanceof FencedDiv) {
+          return !child.equals(otherChild);
+        } else if (otherChild instanceof FencedDiv) {
+          return !otherChild.equals(child);
+        } else {
+          return child !== otherChild;
+        }
+      })
+    ) {
+      return false;
+    }
+    return true;
+  }
 }
 
 function mergeContiguousStrings(
