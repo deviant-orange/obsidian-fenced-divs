@@ -9,21 +9,21 @@
     background-color: rgba(8, 109, 221, 0.25);
   }
 
-  > .obsidian-fenced-div-chunk > * {
-    margin: 0;
+  > * {
+    margin: 1em 0;
   }
 
-  > .obsidian-fenced-div {
-    margin: 1em 0;
+  > .obsidian-fenced-div-chunk > * {
+    margin: 0;
   }
 
   .obsidian-fenced-div-banner {
     color: rgb(8, 109, 221);
     font-weight: bold;
     font-size: var(--font-ui-small);
-    line-height: 1.5;
     text-align: right;
     user-select: none;
+    margin: 0.5em 0;
   }
 }
 
