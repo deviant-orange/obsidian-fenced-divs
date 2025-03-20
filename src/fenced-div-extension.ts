@@ -42,10 +42,6 @@ function decorateFencedDivs(
   if (!transaction.state.field(editorLivePreviewField)) {
     return Decoration.none;
   }
-
-  const app = transaction.state.field(editorInfoField).app;
-  const renderMarkdown = makeRenderProc(app);
-
   const builder = new RangeSetBuilder<Decoration>();
   const text = transaction.state.doc;
 
@@ -55,7 +51,7 @@ function decorateFencedDivs(
     .map((info) => new FencedDiv(info))
     .forEach((div) => {
       const decoration = Decoration.replace({
-        widget: new FencedDivWidget(div, settings, renderMarkdown),
+        widget: new FencedDivWidget(div, settings),
         block: true,
       });
       builder.add(div.from, div.to, decoration);
@@ -67,21 +63,15 @@ function decorateFencedDivs(
 class FencedDivWidget extends WidgetType {
   div: FencedDiv;
   settings: FencedDivSettings;
-  renderMarkdown: (s: string) => HTMLElement;
 
-  constructor(
-    div: FencedDiv,
-    settings: FencedDivSettings,
-    renderMarkdown: (s: string) => HTMLElement,
-  ) {
+  constructor(div: FencedDiv, settings: FencedDivSettings) {
     super();
     this.div = div;
     this.settings = settings;
-    this.renderMarkdown = renderMarkdown;
   }
 
   toDOM(view: EditorView): HTMLElement {
-    return render(this.div, this.settings, view, this.renderMarkdown);
+    return render(this.div, this.settings, view);
   }
 }
 
@@ -89,8 +79,9 @@ export function render(
   div: FencedDiv,
   settings: FencedDivSettings,
   view: EditorView,
-  renderMarkdown: (s: string) => HTMLElement,
 ): HTMLElement {
+  const renderMarkdown = makeRenderProc(view.state.field(editorInfoField).app);
+
   const container = document.createElement("div");
   container.classList.add("obsidian-fenced-div");
   for (let className of div.classList) {
@@ -104,7 +95,7 @@ export function render(
     const div =
       typeof child === "string"
         ? renderMarkdown(child)
-        : render(child, settings, view, renderMarkdown);
+        : render(child, settings, view);
     container.append(div);
   }
 
