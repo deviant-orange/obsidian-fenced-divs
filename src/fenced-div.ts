@@ -1,6 +1,5 @@
-const fencedAttrsRegex =
-  /^:{3,}\s*?(\{(?:\s*[#.][\w_-]+?)*\s*\})?(?:\s*?:+?)?$/;
-const bareClassNameRegex = /^:{3,}\s*?(\S+?)?(?:\s*?:+?)?$/;
+const fencedAttrsRegex = /^:{3,}\s*?(\{(?:\s*[#.][\w_-]+?)*\s*\})(?:\s*?:*?)$/;
+const bareClassNameRegex = /^:{3,}\s*?(\S+?)(?:\s*?:*?)$/;
 const fenceEndRegex = /^:{3,}\s*?$/;
 
 export type FencedDivInfo = {

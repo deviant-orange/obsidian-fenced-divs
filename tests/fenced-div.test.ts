@@ -8,29 +8,6 @@ import {
 } from "../src/fenced-div.ts";
 
 describe("parseFencedDiv function", () => {
-  it('should find fenced divs that start with ":::"', () => {
-    const lines = [
-      "Some lines before",
-      "",
-      ":::",
-      "content",
-      ":::",
-      "Some more lines after",
-    ];
-    const actual = Array.from(parseFencedDiv(lines));
-    const expected = [
-      {
-        from: 19,
-        to: 34,
-        textStartPos: 23,
-        content: ["content"],
-        bareClassName: undefined,
-        fencedAttrs: undefined,
-      },
-    ];
-    assert.deepStrictEqual(actual, expected);
-  });
-
   it('should find fenced divs that start with "::: bareClassName"', () => {
     const lines = [
       "Some lines before",
@@ -141,17 +118,33 @@ describe("parseFencedDiv function", () => {
     assert.deepStrictEqual(actual, expected);
   });
 
+  it("should find fenced divs that have attrs but no content", () => {
+    const lines = ["::: foo", "", ":::"];
+    const actual = Array.from(parseFencedDiv(lines));
+    const expected = [
+      {
+        from: 0,
+        to: 12,
+        textStartPos: 8,
+        content: [""],
+        bareClassName: "foo",
+        fencedAttrs: undefined,
+      },
+    ];
+    assert.deepStrictEqual(actual, expected);
+  });
+
   it("should recognize multiple fenced divs", () => {
     const lines = [
       "Some lines before",
       "",
-      ":::",
+      "::: foo",
       "content",
       ":::",
       "",
       "Some text",
       "",
-      ":::",
+      "::: {.bar}",
       "More content",
       ":::",
     ];
@@ -159,19 +152,19 @@ describe("parseFencedDiv function", () => {
     const expected = [
       {
         from: 19,
-        to: 34,
-        textStartPos: 23,
+        to: 38,
+        textStartPos: 27,
         content: ["content"],
-        bareClassName: undefined,
+        bareClassName: "foo",
         fencedAttrs: undefined,
       },
       {
-        from: 47,
-        to: 67,
-        textStartPos: 51,
+        from: 51,
+        to: 78,
+        textStartPos: 62,
         content: ["More content"],
         bareClassName: undefined,
-        fencedAttrs: undefined,
+        fencedAttrs: "{.bar}",
       },
     ];
     assert.deepStrictEqual(actual, expected);
@@ -220,6 +213,13 @@ describe("parseFencedDiv function", () => {
 
   it("should ignore fenced divs that do not close", () => {
     const lines = [":::", "content"];
+    const actual = Array.from(parseFencedDiv(lines));
+    const expected: FencedDivInfo[] = [];
+    assert.deepStrictEqual(actual, expected);
+  });
+
+  it('should ignore fenced divs that only start with ":::"', () => {
+    const lines = [":::", "content", ":::"];
     const actual = Array.from(parseFencedDiv(lines));
     const expected: FencedDivInfo[] = [];
     assert.deepStrictEqual(actual, expected);
